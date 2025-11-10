@@ -4,16 +4,21 @@ import socksGreenImage from './assets/images/socks_green.jpeg'
 import socksBlueImage from './assets/images/socks_blue.jpeg'
 
 const product = ref('Socks')
-const image = ref(socksGreenImage)
-const inStock = ref(true)
 const details = ref(['50% cotton', '30% wool', '20% polyester'])
-const variants = ref([{id:2234, color:'green', image: socksGreenImage, quantity:10}, {id:2235, color:'blue', image: socksBlueImage, quantity:0}])
+const sizes = ref(['S', 'M', 'L', 'XL'])
 const cart = ref(0)
 const brand = ref('CPNV')
-const productTitle = computed(() => {
-  return `${brand.value} ${product.value}`
-})
+const onSale = ref(true)
+const variants = ref([
+  { id: 2234, color: 'green', image: socksGreenImage, quantity: 10 },
+  { id: 2235, color: 'blue', image: socksBlueImage, quantity: 0 }
+])
+const selectedVariant = ref(0)
 
+function updateVariant(index) {
+  selectedVariant.value = index
+  console.log('selectedVariant:', selectedVariant.value)
+}
 function addToCart() {
   if (inStock.value) {
     cart.value++
@@ -26,9 +31,11 @@ function removeFromCart() {
     cart.value--
   }
 }
-function changeImage(variantImage) {
-  image.value = variantImage
-}
+
+const productTitle = computed(() => `${brand.value} ${product.value}`)
+const image = computed(() => variants.value[selectedVariant.value].image)
+const inStock = computed(() => variants.value[selectedVariant.value].quantity)
+const sale = computed(() => (onSale.value ? 'This product is on sale.' : ''))
 </script>
   
 <template>
@@ -41,6 +48,7 @@ function changeImage(variantImage) {
       </div>
       <div class="product-info">
         <h1>{{ productTitle }}</h1>
+        <p>{{ sale }}</p>
         <p v-if="inStock">In Stock</p>
         <p v-else>Out of Stock</p>
         <h2>Composition:</h2>
@@ -49,11 +57,11 @@ function changeImage(variantImage) {
         </ul>
         <h2>Available colors:</h2>
         <div
-            v-for="variant in variants"
+            v-for="(variant, index) in variants"
             :key="variant.id"
             class="color-circle"
             :style="{ backgroundColor: variant.color, cursor: 'pointer' }"
-            @mouseover="changeImage(variant.image)"
+            @mouseover="updateVariant(index)"
         >
         </div>
         <h2>Available sizes:</h2>
