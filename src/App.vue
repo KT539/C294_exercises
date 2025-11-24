@@ -14,9 +14,6 @@ function addToCart(id) {
 function removeFromCart(id) {
     if (cart.value[id] && cart.value[id] > 0) {
       cart.value[id]--
-      if (cart.value[id] === 0) {
-        delete cart.value[id];
-      }
     }
 }
 const cartTotal = computed(() => {
