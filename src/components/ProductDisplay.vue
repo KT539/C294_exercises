@@ -1,14 +1,90 @@
+<script setup>
+import { ref, computed } from 'vue';
+import socksGreenImage from "@/assets/images/socks_green.jpeg";
+import socksBlueImage from "@/assets/images/socks_blue.jpeg";
+
+
+// props & emits
+const emit = defineEmits(["add", "remove"]);
+
+const props = defineProps ({
+    premium: {
+      type: Boolean,
+      required: true,
+    },
+    cart: {
+      type: Object,
+      required: true,
+    }
+  });
+
+// data
+const product = ref("Socks");
+const brand = ref("CPNV");
+const onSale = ref(true);
+const details = ref(["50% cotton", "30% wool", "20% polyester"]);
+const sizes = ref(["S", "M", "L", "XL"]);
+const selectedVariant = ref(0);
+const variants = ref([
+  { id: 2234, color: "green", image: socksGreenImage, quantity: 10 },
+  { id: 2235, color: "blue", image: socksBlueImage, quantity: 5 },
+]);
+
+// methods
+function updateVariant(index) {
+  selectedVariant.value = index;
+}
+
+function add() {
+  emit("add", variants.value[selectedVariant.value].id);
+}
+
+function remove() {
+  emit("remove", variants.value[selectedVariant.value].id);
+}
+
+// computed
+const productTitle = computed(() => `${brand.value} ${product.value}`);
+const image = computed(() => variants.value[selectedVariant.value].image);
+const inStock = computed(() => variants.value[selectedVariant.value].quantity > 0);
+const sale = computed(() => (onSale.value ? "This product is on sale." : ""));
+const shipping = computed(() =>
+    props.premium ? "Free shipping" : "Shipping: 5.99 CHF"
+)
+const cartQuantity = computed(() => {
+  const id = variants.value[selectedVariant.value].id
+  return props.cart[id] || 0
+})
+
+</script>
+
+
 <template>
   <div class="product-display">
     <div class="product-container">
       <div class="product-image">
         <img :src="image" :class="{ 'out-of-stock-img': !inStock }" />
       </div>
+      <div id="cart">
+        <button @click="add"
+                class="button"
+                v-bind:disabled="!inStock"
+                v-bind:class="{ 'disabledButton': !inStock }">
+          + Cart
+        </button>
+        <button @click="remove"
+                class="button"
+                v-bind:disabled="!inStock || cartQuantity === 0"
+                v-bind:class="{ 'disabledButton': !inStock || cartQuantity === 0 }">
+          - Cart
+        </button>
+      </div>
       <div class="product-info">
         <h1>{{ productTitle }}</h1>
         <p>{{ sale }}</p>
         <p v-if="inStock">In Stock</p>
         <p v-else>Out of Stock</p>
+        <p>{{ shipping }}</p>
 
         <h2>Composition:</h2>
         <ul>
@@ -32,48 +108,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import socksGreenImage from "@/assets/images/socks_green.jpeg";
-import socksBlueImage from "@/assets/images/socks_blue.jpeg";
-
-export default {
-  name: "ProductDisplay",
-
-  data() {
-    return {
-      product: "Socks",
-      brand: "CPNV",
-      onSale: true,
-      details: ["50% cotton", "30% wool", "20% polyester"],
-      sizes: ["S", "M", "L", "XL"],
-      selectedVariant: 0,
-      variants: [
-        { id: 2234, color: "green", image: socksGreenImage, quantity: 10 },
-        { id: 2235, color: "blue", image: socksBlueImage, quantity: 0 }
-      ]
-    };
-  },
-
-  methods: {
-    updateVariant(index) {
-      this.selectedVariant = index;
-    }
-  },
-
-  computed: {
-    productTitle() {
-      return `${this.brand} ${this.product}`;
-    },
-    image() {
-      return this.variants[this.selectedVariant].image;
-    },
-    inStock() {
-      return this.variants[this.selectedVariant].quantity > 0;
-    },
-    sale() {
-      return this.onSale ? "This product is on sale." : "";
-    }
-  }
-};
-</script>
