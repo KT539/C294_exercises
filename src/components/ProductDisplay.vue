@@ -3,6 +3,8 @@
 import { ref, computed } from 'vue';
 import socksGreenImage from "@/assets/images/socks_green.jpeg";
 import socksBlueImage from "@/assets/images/socks_blue.jpeg";
+import ReviewForm from "@/components/ReviewForm.vue";
+import ReviewList from "@/components/ReviewList.vue";
 
 
 // props & emits
@@ -20,6 +22,7 @@ const props = defineProps ({
 });
 
 // data
+const reviews = ref([])
 const product = ref("Socks");
 const brand = ref("CPNV");
 const onSale = ref(true);
@@ -42,6 +45,10 @@ function add() {
 
 function remove() {
   emit("remove", variants.value[selectedVariant.value].id);
+}
+
+function addReview(review) {
+  reviews.value.push(review)
 }
 
 // computed
@@ -108,4 +115,6 @@ const cartQuantity = computed(() => {
       </div>
     </div>
   </div>
+  <ReviewForm @review-submitted="addReview" />
+  <ReviewList :reviews="reviews" />
 </template>
