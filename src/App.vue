@@ -1,3 +1,5 @@
+// cf L8-start
+
 <script setup>
 import { ref, computed } from 'vue'
 import socksGreenImage from './assets/images/socks_green.jpeg'
